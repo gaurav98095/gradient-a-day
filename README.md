@@ -1,8 +1,8 @@
 # Gradient a day
 
-Read something. Keep the idea.
+Read something. Keep the idea. Share the good parts.
 
-Gradient a day is a tiny learning newspaper built from Markdown notes.
+Gradient a day is a tiny personal newsletter built from Markdown notes—a place to keep learning resources and share the ideas worth passing on.
 
 - **Brief** — short paper summaries.
 - **Lab** — experiments, code, and deeper explanations.
