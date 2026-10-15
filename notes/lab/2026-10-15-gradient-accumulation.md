@@ -5,7 +5,6 @@ topic: training
 signal: lab
 author: Gaurav K
 source: Implementation note
-url: https://github.com/gaurav98095/gradient-a-day
 summary: Gradient accumulation lets a small GPU train with a larger effective batch. Run several small batches, keep their gradients, and update the model only once. This is useful for long sequences, large images, and transformer models. The trade-off is fewer optimizer updates and a slightly longer training loop.
 ---
 

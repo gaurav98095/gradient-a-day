@@ -90,6 +90,16 @@ function inlineMarkdown(text) {
 
 function escapeHtml(text) { return text.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character])); }
 
+function renderSource(note) {
+  if (note.signal === 'lab') {
+    return note.url ? `<a href="${escapeHtml(note.url)}" target="_blank" rel="noreferrer">GitHub ↗</a>` : '';
+  }
+  if (!note.source) return '';
+  return note.url
+    ? `<a href="${escapeHtml(note.url)}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a>`
+    : escapeHtml(note.source);
+}
+
 function renderTopicPills() {
   const signalNotes = state.notes.filter(note => state.signal === 'All' || note.signal === state.signal);
   const topics = [...new Set(signalNotes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
@@ -109,7 +119,7 @@ function render() {
   $('#empty-state').hidden = visible.length !== 0;
   const noteCard = (note, featured = false) => `<article class="note ${featured ? 'top-note' : ''} ${featured && !note.image ? 'text-only-note' : ''}">
     ${featured && !state.topics.length ? '<span class="top-label">• Recent note</span>' : ''}
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · <span class="signal">${escapeHtml(note.signal || 'brief')}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.signal === 'lab' ? '' : ` · <span class="signal">${escapeHtml(note.signal || 'brief')}</span>`}${note.signal === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
     <h2><a href="?note=${encodeURIComponent(note.file)}">${escapeHtml(note.title)}</a></h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
     <div class="note-body">${renderMarkdown(note.summary || note.body.split(/\n\s*\n/)[0])}</div>
@@ -126,7 +136,7 @@ function renderDetail(note) {
   $('#empty-state').hidden = true;
   $('#notes').innerHTML = `<article class="full-note">
     <a class="back-link" href="index.html">← Back to notes</a>
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · <span class="signal">${escapeHtml(note.signal || 'brief')}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.signal === 'lab' ? '' : ` · <span class="signal">${escapeHtml(note.signal || 'brief')}</span>`}${note.signal === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
     <h2>${escapeHtml(note.title)}</h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
     <div class="note-body">${renderMarkdown(note.body)}</div>
