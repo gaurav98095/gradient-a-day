@@ -2,7 +2,7 @@
 title: Jina Embeddings v3: one model, many embedding behaviors
 date: 2026-10-15
 topic: embeddings
-signal: brief
+mode: brief
 author: Jina AI · Sturua et al.
 source: Paper · 2024
 url: https://arxiv.org/abs/2409.10173

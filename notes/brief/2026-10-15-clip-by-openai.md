@@ -2,7 +2,7 @@
 title: CLIP by OpenAI
 date: 2026-10-15
 topic: embeddings
-signal: brief
+mode: brief
 author: OpenAI
 source: Paper · 2021
 url: https://arxiv.org/abs/2103.00020

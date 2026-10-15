@@ -1,8 +1,7 @@
-const state = { topics:[], signal:'brief', notes:[], detail:null };
+const state = { topics:[], mode:'brief', notes:[], detail:null };
 const $ = (selector) => document.querySelector(selector);
 const dateText = new Intl.DateTimeFormat('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }).format(new Date());
 $('#edition-date').textContent = dateText;
-$('#footer-date').textContent = dateText;
 
 function parseFrontMatter(markdown) {
   const match = markdown.match(/^---\s*\n([\s\S]*?)\n---\s*\n([\s\S]*)$/);
@@ -91,7 +90,7 @@ function inlineMarkdown(text) {
 function escapeHtml(text) { return text.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character])); }
 
 function renderSource(note) {
-  if (note.signal === 'lab') {
+  if (note.mode === 'lab') {
     return note.url ? `<a href="${escapeHtml(note.url)}" target="_blank" rel="noreferrer">GitHub ↗</a>` : '';
   }
   if (!note.source) return '';
@@ -101,25 +100,25 @@ function renderSource(note) {
 }
 
 function renderTopicPills() {
-  const signalNotes = state.notes.filter(note => state.signal === 'All' || note.signal === state.signal);
-  const topics = [...new Set(signalNotes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const modeNotes = state.notes.filter(note => state.mode === 'All' || note.mode === state.mode);
+  const topics = [...new Set(modeNotes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   state.topics = state.topics.filter(topic => topics.includes(topic));
   $('#topic-pills').innerHTML = `<button class="pill ${state.topics.length ? '' : 'active'}" data-topic-all>All</button>${topics.map(topic => `<button class="pill ${state.topics.includes(topic) ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('')}`;
 }
 
-function renderSignalPills() {
-  const signals = [...new Set(state.notes.map(note => String(note.signal || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  if (!signals.includes(state.signal)) state.signal = signals.includes('brief') ? 'brief' : signals[0] || '';
-  $('#signal-pills').innerHTML = signals.map(signal => `<button class="pill ${state.signal === signal ? 'active' : ''}" data-signal="${escapeHtml(signal)}">${escapeHtml(signal)}</button>`).join('');
+function renderModePills() {
+  const modes = [...new Set(state.notes.map(note => String(note.mode || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  if (!modes.includes(state.mode)) state.mode = modes.includes('brief') ? 'brief' : modes[0] || '';
+  $('#mode-pills').innerHTML = modes.map(mode => `<button class="pill ${state.mode === mode ? 'active' : ''}" data-mode="${escapeHtml(mode)}">${escapeHtml(mode)}</button>`).join('');
 }
 
 function render() {
   if (state.detail) { renderDetail(state.detail); return; }
-  const visible = state.notes.filter(note => (!state.topics.length || state.topics.includes(note.topic)) && (state.signal === 'All' || note.signal === state.signal));
+  const visible = state.notes.filter(note => (!state.topics.length || state.topics.includes(note.topic)) && (state.mode === 'All' || note.mode === state.mode));
   $('#empty-state').hidden = visible.length !== 0;
   const noteCard = (note, featured = false) => `<article class="note ${featured ? 'top-note' : ''} ${featured && !note.image ? 'text-only-note' : ''}">
     ${featured && !state.topics.length ? '<span class="top-label">• Recent note</span>' : ''}
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.signal === 'lab' ? '' : ` · <span class="signal">${escapeHtml(note.signal || 'brief')}</span>`}${note.signal === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.mode === 'lab' ? '' : ` · <span class="mode">${escapeHtml(note.mode || 'brief')}</span>`}${note.mode === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
     <h2><a href="?note=${encodeURIComponent(note.file)}">${escapeHtml(note.title)}</a></h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
     <div class="note-body">${renderMarkdown(note.summary || note.body.split(/\n\s*\n/)[0])}</div>
@@ -136,7 +135,7 @@ function renderDetail(note) {
   $('#empty-state').hidden = true;
   $('#notes').innerHTML = `<article class="full-note">
     <a class="back-link" href="index.html">← Back to notes</a>
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.signal === 'lab' ? '' : ` · <span class="signal">${escapeHtml(note.signal || 'brief')}</span>`}${note.signal === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.mode === 'lab' ? '' : ` · <span class="mode">${escapeHtml(note.mode || 'brief')}</span>`}${note.mode === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
     <h2>${escapeHtml(note.title)}</h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
     <div class="note-body">${renderMarkdown(note.body)}</div>
@@ -153,7 +152,7 @@ async function loadNotes() {
     }));
     state.notes.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
     renderTopicPills();
-    renderSignalPills();
+    renderModePills();
   } catch (error) {
     $('#notes').innerHTML = '<section class="empty-state"><p>Notes could not be loaded. Run <code>node build.mjs</code> once, then open the site from a local server.</p></section>';
   }
@@ -161,9 +160,9 @@ async function loadNotes() {
   const detailNote = state.notes.find(note => note.file === requestedNote);
   if (detailNote) {
     state.detail = detailNote;
-    state.signal = detailNote.signal || state.signal;
+    state.mode = detailNote.mode || state.mode;
     state.topics = detailNote.topic ? [detailNote.topic] : [];
-    renderSignalPills();
+    renderModePills();
     renderTopicPills();
     renderDetail(detailNote);
   }
@@ -181,7 +180,7 @@ document.addEventListener('click', (event) => {
   }
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (action === 'theme') document.body.classList.toggle('night');
-  if (action === 'home') { state.detail = null; state.topics = []; state.signal = 'brief'; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-topic]').forEach(p => p.classList.remove('active')); document.querySelectorAll('[data-signal]').forEach(p => p.classList.toggle('active', p.dataset.signal === 'brief')); render(); window.scrollTo({ top:0, behavior:'smooth' }); }
+  if (action === 'home') { state.detail = null; state.topics = []; state.mode = 'brief'; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-topic]').forEach(p => p.classList.remove('active')); document.querySelectorAll('[data-mode]').forEach(p => p.classList.toggle('active', p.dataset.mode === 'brief')); render(); window.scrollTo({ top:0, behavior:'smooth' }); }
   if (action === 'about') alert('Gradient a day is a small, personal archive for turning reading into memory. Add one Markdown file per reading note.');
 });
 
@@ -216,14 +215,14 @@ $('#topic-pills').addEventListener('click', (event) => {
   render();
 });
 
-$('#signal-pills').addEventListener('click', (event) => {
-  const pill = event.target.closest('[data-signal]');
+$('#mode-pills').addEventListener('click', (event) => {
+  const pill = event.target.closest('[data-mode]');
   if (!pill) return;
   state.detail = null;
-  state.signal = isSecondFilterClick('signal', pill.dataset.signal) ? 'brief' : pill.dataset.signal;
+  state.mode = isSecondFilterClick('mode', pill.dataset.mode) ? 'brief' : pill.dataset.mode;
   history.replaceState({}, '', 'index.html');
   renderTopicPills();
-  renderSignalPills();
+  renderModePills();
   render();
 });
 let previousColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
