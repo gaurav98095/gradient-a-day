@@ -1,6 +1,7 @@
 {
   "files": [
-    "2026-10-15-jina-embeddings-v3.md",
-    "2026-10-15-clip-by-openai.md"
+    "lab/2026-10-15-gradient-accumulation.md",
+    "brief/2026-10-15-jina-embeddings-v3.md",
+    "brief/2026-10-15-clip-by-openai.md"
   ]
 }

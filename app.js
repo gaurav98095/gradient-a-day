@@ -1,4 +1,4 @@
-const state = { topic:'All', notes:[] };
+const state = { topic:'All', signal:'brief', notes:[], detail:null };
 const $ = (selector) => document.querySelector(selector);
 const dateText = new Intl.DateTimeFormat('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }).format(new Date());
 $('#edition-date').textContent = dateText;
@@ -19,36 +19,100 @@ function parseFrontMatter(markdown) {
 }
 
 function renderMarkdown(markdown) {
-  return markdown.split(/\n\s*\n/).map(block => {
-    const text = block.trim();
-    if (!text) return '';
-    if (text.startsWith('> ')) return `<p class="pull-quote">${escapeHtml(text.slice(2))}</p>`;
-    if (/^(?:- |\* )/.test(text)) return `<ul>${text.split('\n').map(item => `<li>${inlineMarkdown(item.replace(/^[-*] /, ''))}</li>`).join('')}</ul>`;
-    return `<p>${inlineMarkdown(text.replace(/\n/g, ' '))}</p>`;
+  const lines = markdown.split('\n');
+  const output = [];
+  let paragraph = [];
+  let list = [];
+  let listType = null;
+  let code = null;
+  let codeLanguage = '';
+
+  const flushParagraph = () => {
+    if (paragraph.length) output.push(`<p>${inlineMarkdown(paragraph.join(' '))}</p>`);
+    paragraph = [];
+  };
+  const flushList = () => {
+    if (list.length) output.push(`<${listType}>${list.map(item => `<li>${inlineMarkdown(item)}</li>`).join('')}</${listType}>`);
+    list = [];
+    listType = null;
+  };
+
+  lines.forEach(line => {
+    if (line.trim().startsWith('```')) {
+      if (code === null) { flushParagraph(); flushList(); code = []; codeLanguage = line.trim().slice(3).trim().toLowerCase(); }
+      else { output.push(renderCodeBlock(code.join('\n'), codeLanguage)); code = null; codeLanguage = ''; }
+      return;
+    }
+    if (code !== null) { code.push(line); return; }
+    if (!line.trim()) { flushParagraph(); flushList(); return; }
+    const heading = line.match(/^(#{1,3})\s+(.+)$/);
+    if (heading) { flushParagraph(); flushList(); output.push(`<h${heading[1].length + 1}>${inlineMarkdown(heading[2])}</h${heading[1].length + 1}>`); return; }
+    if (/^(?:- |\* )/.test(line)) { flushParagraph(); if (listType !== 'ul') { flushList(); listType = 'ul'; } list.push(line.replace(/^[-*] /, '')); return; }
+    if (/^\d+\. /.test(line)) { flushParagraph(); if (listType !== 'ol') { flushList(); listType = 'ol'; } list.push(line.replace(/^\d+\. /, '')); return; }
+    if (line.startsWith('> ')) { flushParagraph(); flushList(); output.push(`<p class="pull-quote">${inlineMarkdown(line.slice(2))}</p>`); return; }
+    flushList(); paragraph.push(line.trim());
+  });
+  if (code !== null) output.push(renderCodeBlock(code.join('\n'), codeLanguage));
+  flushParagraph();
+  flushList();
+  return output.join('');
+}
+
+function renderCodeBlock(code, language = '') {
+  const highlighted = language === 'python' || language === 'py' ? highlightPython(code) : escapeHtml(code);
+  const label = language ? language.toUpperCase() : 'CODE';
+  return `<div class="code-block"><div class="code-toolbar"><span class="code-language">${escapeHtml(label)}</span><button class="copy-code" type="button" data-copy-code="${escapeHtml(code)}">Copy</button></div><pre><code class="language-${escapeHtml(language)}">${highlighted}</code></pre></div>`;
+}
+
+function highlightPython(code) {
+  const tokenPattern = /(#.*$|"""[\s\S]*?"""|'''[\s\S]*?'''|"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'|\b\d+(?:\.\d+)?\b|\b(?:and|as|assert|async|await|break|case|class|continue|def|del|elif|else|except|finally|for|from|if|import|in|is|match|not|or|pass|raise|return|try|while|with|yield)\b|\b(?:True|False|None)\b|\b(?:print|len|range|enumerate|zip|sum|map|filter|super|isinstance)\b)/gm;
+  return code.split(tokenPattern).map((part, index, parts) => {
+    if (!part) return '';
+    const escaped = escapeHtml(part);
+    if (/^#/.test(part)) return `<span class="syntax-comment">${escaped}</span>`;
+    if (/^(?:\"\"\"|'''|\"|')/.test(part)) return `<span class="syntax-string">${escaped}</span>`;
+    if (/^\d/.test(part)) return `<span class="syntax-number">${escaped}</span>`;
+    if (/^(?:True|False|None)$/.test(part)) return `<span class="syntax-constant">${escaped}</span>`;
+    if (/^(?:print|len|range|enumerate|zip|sum|map|filter|super|isinstance)$/.test(part)) return `<span class="syntax-builtin">${escaped}</span>`;
+    if (/^(?:and|as|assert|async|await|break|case|class|continue|def|del|elif|else|except|finally|for|from|if|import|in|is|match|not|or|pass|raise|return|try|while|with|yield)$/.test(part)) return `<span class="syntax-keyword">${escaped}</span>`;
+    return escaped;
   }).join('');
 }
 
 function inlineMarkdown(text) {
-  return escapeHtml(text).replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\*(.+?)\*/g, '<em>$1</em>').replace(/`(.+?)`/g, '<code>$1</code>');
+  return escapeHtml(text)
+    .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img class="inline-note-image" src="$2" alt="$1" loading="lazy">')
+    .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.+?)\*/g, '<em>$1</em>')
+    .replace(/`(.+?)`/g, '<code>$1</code>');
 }
 
 function escapeHtml(text) { return text.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character])); }
 
 function renderTopicPills() {
-  const topics = [...new Set(state.notes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  const signalNotes = state.notes.filter(note => state.signal === 'All' || note.signal === state.signal);
+  const topics = [...new Set(signalNotes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   if (state.topic !== 'All' && !topics.includes(state.topic)) state.topic = 'All';
-  $('#topic-pills').innerHTML = ['All', ...topics].map(topic => `<button class="pill ${state.topic === topic ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('');
+  $('#topic-pills').innerHTML = topics.map(topic => `<button class="pill ${state.topic === topic ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('');
+}
+
+function renderSignalPills() {
+  const signals = [...new Set(state.notes.map(note => String(note.signal || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  if (!signals.includes(state.signal)) state.signal = signals.includes('brief') ? 'brief' : signals[0] || '';
+  $('#signal-pills').innerHTML = signals.map(signal => `<button class="pill ${state.signal === signal ? 'active' : ''}" data-signal="${escapeHtml(signal)}">${escapeHtml(signal)}</button>`).join('');
 }
 
 function render() {
-  const visible = state.notes.filter(note => state.topic === 'All' || note.topic === state.topic);
+  if (state.detail) { renderDetail(state.detail); return; }
+  const visible = state.notes.filter(note => (state.topic === 'All' || note.topic === state.topic) && (state.signal === 'All' || note.signal === state.signal));
   $('#empty-state').hidden = visible.length !== 0;
   const noteCard = (note, featured = false) => `<article class="note ${featured ? 'top-note' : ''} ${featured && !note.image ? 'text-only-note' : ''}">
     ${featured && state.topic === 'All' ? '<span class="top-label">• Recent note</span>' : ''}
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
-    <h2><a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.title)}</a></h2>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · <span class="signal">${escapeHtml(note.signal || 'brief')}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
+    <h2><a href="?note=${encodeURIComponent(note.file)}">${escapeHtml(note.title)}</a></h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
-    <div class="note-body">${renderMarkdown(note.body)}</div>
+    <div class="note-body">${renderMarkdown(note.summary || note.body.split(/\n\s*\n/)[0])}</div>
   </article>`;
   if (!visible.length) { $('#notes').innerHTML = ''; return; }
   const columnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
@@ -57,30 +121,61 @@ function render() {
   $('#notes').innerHTML = `${noteCard(visible[0], true)}<div class="note-grid">${columns.map(column => `<div class="note-column">${column.map(note => noteCard(note)).join('')}</div>`).join('')}</div>`;
 }
 
+function renderDetail(note) {
+  $('#note-filters').hidden = false;
+  $('#empty-state').hidden = true;
+  $('#notes').innerHTML = `<article class="full-note">
+    <a class="back-link" href="index.html">← Back to notes</a>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · <span class="signal">${escapeHtml(note.signal || 'brief')}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
+    <h2>${escapeHtml(note.title)}</h2>
+    ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
+    <div class="note-body">${renderMarkdown(note.body)}</div>
+  </article>`;
+}
+
 async function loadNotes() {
   try {
     const manifest = await fetch('notes/index.json').then(response => response.json());
     state.notes = await Promise.all(manifest.files.map(async file => {
       const markdown = await fetch(`notes/${file}`).then(response => response.text());
       const parsed = parseFrontMatter(markdown);
-      return { ...parsed.meta, body:parsed.body };
+      return { ...parsed.meta, body:parsed.body, file };
     }));
     state.notes.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
     renderTopicPills();
+    renderSignalPills();
   } catch (error) {
     $('#notes').innerHTML = '<section class="empty-state"><p>Notes could not be loaded. Run <code>node build.mjs</code> once, then open the site from a local server.</p></section>';
   }
-  render();
+  const requestedNote = new URLSearchParams(window.location.search).get('note');
+  const detailNote = state.notes.find(note => note.file === requestedNote);
+  if (detailNote) {
+    state.detail = detailNote;
+    state.signal = detailNote.signal || state.signal;
+    renderSignalPills();
+    renderTopicPills();
+    renderDetail(detailNote);
+  }
+  else render();
 }
 
 document.addEventListener('click', (event) => {
+  const copyButton = event.target.closest('[data-copy-code]');
+  if (copyButton) {
+    navigator.clipboard?.writeText(copyButton.dataset.copyCode || '').then(() => {
+      copyButton.textContent = 'Copied';
+      setTimeout(() => { copyButton.textContent = 'Copy'; }, 1400);
+    });
+    return;
+  }
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (action === 'theme') document.body.classList.toggle('night');
-  if (action === 'home') { state.topic = 'All'; document.querySelectorAll('[data-topic]').forEach(p => p.classList.toggle('active', p.dataset.topic === 'All')); render(); window.scrollTo({ top:0, behavior:'smooth' }); }
+  if (action === 'home') { state.detail = null; state.topic = 'All'; state.signal = 'brief'; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-topic]').forEach(p => p.classList.remove('active')); document.querySelectorAll('[data-signal]').forEach(p => p.classList.toggle('active', p.dataset.signal === 'brief')); render(); window.scrollTo({ top:0, behavior:'smooth' }); }
   if (action === 'about') alert('Gradient a day is a small, personal archive for turning reading into memory. Add one Markdown file per reading note.');
 });
 
-$('#topic-pills').addEventListener('click', (event) => { const pill = event.target.closest('[data-topic]'); if (!pill) return; state.topic = pill.dataset.topic; document.querySelectorAll('[data-topic]').forEach(p => p.classList.toggle('active', p === pill)); render(); });
+$('#topic-pills').addEventListener('click', (event) => { const pill = event.target.closest('[data-topic]'); if (!pill) return; state.detail = null; state.topic = pill.dataset.topic; history.replaceState({}, '', 'index.html'); document.querySelectorAll('[data-topic]').forEach(p => p.classList.toggle('active', p === pill)); render(); });
+$('#signal-pills').addEventListener('click', (event) => { const pill = event.target.closest('[data-signal]'); if (!pill) return; state.detail = null; state.signal = pill.dataset.signal; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-signal]').forEach(p => p.classList.toggle('active', p === pill)); render(); });
 let previousColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
 window.addEventListener('resize', () => { const nextColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3; if (nextColumnCount !== previousColumnCount) { previousColumnCount = nextColumnCount; render(); } });
 loadNotes();
