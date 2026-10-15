@@ -1,4 +1,4 @@
-const state = { topic:'All', view:'notes', notes:[] };
+const state = { topic:'All', notes:[] };
 const $ = (selector) => document.querySelector(selector);
 const dateText = new Intl.DateTimeFormat('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }).format(new Date());
 $('#edition-date').textContent = dateText;
@@ -48,7 +48,7 @@ function render() {
     <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
     <h2><a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.title)}</a></h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
-    <div class="note-body">${state.view === 'titles' ? '' : renderMarkdown(note.body)}</div>
+    <div class="note-body">${renderMarkdown(note.body)}</div>
   </article>`;
   if (!visible.length) { $('#notes').innerHTML = ''; return; }
   const columnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
@@ -81,7 +81,6 @@ document.addEventListener('click', (event) => {
 });
 
 $('#topic-pills').addEventListener('click', (event) => { const pill = event.target.closest('[data-topic]'); if (!pill) return; state.topic = pill.dataset.topic; document.querySelectorAll('[data-topic]').forEach(p => p.classList.toggle('active', p === pill)); render(); });
-document.querySelectorAll('[data-view]').forEach(button => button.addEventListener('click', () => { state.view = button.dataset.view; document.querySelectorAll('[data-view]').forEach(p => p.classList.toggle('active', p === button)); render(); }));
 let previousColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
 window.addEventListener('resize', () => { const nextColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3; if (nextColumnCount !== previousColumnCount) { previousColumnCount = nextColumnCount; render(); } });
 loadNotes();
