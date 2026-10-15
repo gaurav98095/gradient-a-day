@@ -1,4 +1,4 @@
-const state = { topic:'All', signal:'brief', notes:[], detail:null };
+const state = { topics:[], signal:'brief', notes:[], detail:null };
 const $ = (selector) => document.querySelector(selector);
 const dateText = new Intl.DateTimeFormat('en-US', { weekday:'long', month:'long', day:'numeric', year:'numeric' }).format(new Date());
 $('#edition-date').textContent = dateText;
@@ -93,8 +93,8 @@ function escapeHtml(text) { return text.replace(/[&<>"']/g, character => ({'&':'
 function renderTopicPills() {
   const signalNotes = state.notes.filter(note => state.signal === 'All' || note.signal === state.signal);
   const topics = [...new Set(signalNotes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
-  if (state.topic !== 'All' && !topics.includes(state.topic)) state.topic = 'All';
-  $('#topic-pills').innerHTML = topics.map(topic => `<button class="pill ${state.topic === topic ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('');
+  state.topics = state.topics.filter(topic => topics.includes(topic));
+  $('#topic-pills').innerHTML = `<button class="pill ${state.topics.length ? '' : 'active'}" data-topic-all>All</button>${topics.map(topic => `<button class="pill ${state.topics.includes(topic) ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('')}`;
 }
 
 function renderSignalPills() {
@@ -105,10 +105,10 @@ function renderSignalPills() {
 
 function render() {
   if (state.detail) { renderDetail(state.detail); return; }
-  const visible = state.notes.filter(note => (state.topic === 'All' || note.topic === state.topic) && (state.signal === 'All' || note.signal === state.signal));
+  const visible = state.notes.filter(note => (!state.topics.length || state.topics.includes(note.topic)) && (state.signal === 'All' || note.signal === state.signal));
   $('#empty-state').hidden = visible.length !== 0;
   const noteCard = (note, featured = false) => `<article class="note ${featured ? 'top-note' : ''} ${featured && !note.image ? 'text-only-note' : ''}">
-    ${featured && state.topic === 'All' ? '<span class="top-label">• Recent note</span>' : ''}
+    ${featured && !state.topics.length ? '<span class="top-label">• Recent note</span>' : ''}
     <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span> · <span class="signal">${escapeHtml(note.signal || 'brief')}</span> · ${escapeHtml(note.author)} · <a href="${escapeHtml(note.url || '#')}" target="_blank" rel="noreferrer">${escapeHtml(note.source)} ↗</a></div>
     <h2><a href="?note=${encodeURIComponent(note.file)}">${escapeHtml(note.title)}</a></h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
@@ -152,6 +152,7 @@ async function loadNotes() {
   if (detailNote) {
     state.detail = detailNote;
     state.signal = detailNote.signal || state.signal;
+    state.topics = detailNote.topic ? [detailNote.topic] : [];
     renderSignalPills();
     renderTopicPills();
     renderDetail(detailNote);
@@ -170,12 +171,51 @@ document.addEventListener('click', (event) => {
   }
   const action = event.target.closest('[data-action]')?.dataset.action;
   if (action === 'theme') document.body.classList.toggle('night');
-  if (action === 'home') { state.detail = null; state.topic = 'All'; state.signal = 'brief'; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-topic]').forEach(p => p.classList.remove('active')); document.querySelectorAll('[data-signal]').forEach(p => p.classList.toggle('active', p.dataset.signal === 'brief')); render(); window.scrollTo({ top:0, behavior:'smooth' }); }
+  if (action === 'home') { state.detail = null; state.topics = []; state.signal = 'brief'; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-topic]').forEach(p => p.classList.remove('active')); document.querySelectorAll('[data-signal]').forEach(p => p.classList.toggle('active', p.dataset.signal === 'brief')); render(); window.scrollTo({ top:0, behavior:'smooth' }); }
   if (action === 'about') alert('Gradient a day is a small, personal archive for turning reading into memory. Add one Markdown file per reading note.');
 });
 
-$('#topic-pills').addEventListener('click', (event) => { const pill = event.target.closest('[data-topic]'); if (!pill) return; state.detail = null; state.topic = pill.dataset.topic; history.replaceState({}, '', 'index.html'); document.querySelectorAll('[data-topic]').forEach(p => p.classList.toggle('active', p === pill)); render(); });
-$('#signal-pills').addEventListener('click', (event) => { const pill = event.target.closest('[data-signal]'); if (!pill) return; state.detail = null; state.signal = pill.dataset.signal; history.replaceState({}, '', 'index.html'); renderTopicPills(); document.querySelectorAll('[data-signal]').forEach(p => p.classList.toggle('active', p === pill)); render(); });
+let lastFilterClick = { kind:'', value:'', time:0 };
+function isSecondFilterClick(kind, value) {
+  const now = Date.now();
+  const isDouble = lastFilterClick.kind === kind && lastFilterClick.value === value && now - lastFilterClick.time < 450;
+  lastFilterClick = { kind, value, time:now };
+  return isDouble;
+}
+
+$('#topic-pills').addEventListener('click', (event) => {
+  const all = event.target.closest('[data-topic-all]');
+  if (all) {
+    state.detail = null;
+    state.topics = [];
+    history.replaceState({}, '', 'index.html');
+    renderTopicPills();
+    render();
+    return;
+  }
+  const pill = event.target.closest('[data-topic]');
+  if (!pill) return;
+  state.detail = null;
+  const topic = pill.dataset.topic;
+  const doubleClick = isSecondFilterClick('topic', topic);
+  state.topics = doubleClick || state.topics.includes(topic)
+    ? state.topics.filter(selected => selected !== topic)
+    : [...state.topics, topic];
+  history.replaceState({}, '', 'index.html');
+  renderTopicPills();
+  render();
+});
+
+$('#signal-pills').addEventListener('click', (event) => {
+  const pill = event.target.closest('[data-signal]');
+  if (!pill) return;
+  state.detail = null;
+  state.signal = isSecondFilterClick('signal', pill.dataset.signal) ? 'brief' : pill.dataset.signal;
+  history.replaceState({}, '', 'index.html');
+  renderTopicPills();
+  renderSignalPills();
+  render();
+});
 let previousColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
 window.addEventListener('resize', () => { const nextColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3; if (nextColumnCount !== previousColumnCount) { previousColumnCount = nextColumnCount; render(); } });
 loadNotes();
