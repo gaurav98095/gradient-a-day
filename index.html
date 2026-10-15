@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A quiet daily journal for turning papers into durable understanding." />
+    <title>Gradient a day — A learning newspaper</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="paper">
+      <header class="masthead-tools date-only">
+        <time id="edition-date"></time>
+      </header>
+
+      <section class="intro">
+        <h1><button data-action="home">Gradient a day</button></h1>
+        <p>A daily learning journal · Read deeply, remember clearly</p>
+      </section>
+
+      <hr />
+
+      <section class="filters" aria-label="Note filters">
+        <div class="filter-block">
+          <span class="filter-label">Topic:</span>
+          <div class="pills" id="topic-pills">
+            <button class="pill active" data-topic="All">All</button>
+            <button class="pill" data-topic="AI &amp; ML">AI &amp; ML</button>
+            <button class="pill" data-topic="Systems">Systems</button>
+            <button class="pill" data-topic="Mind &amp; Work">Mind &amp; Work</button>
+          </div>
+        </div>
+        <div class="filter-block reading-mode">
+          <span class="filter-label">View:</span>
+          <div class="pills">
+            <button class="pill active" data-view="notes">Notes</button>
+            <button class="pill" data-view="titles">Titles only</button>
+          </div>
+        </div>
+      </section>
+
+      <section class="notes" id="notes" aria-live="polite"></section>
+
+      <section class="empty-state" id="empty-state" hidden>
+        <p>No notes here yet.</p>
+      </section>
+
+      <footer>
+        <p class="settling-note">A small place for ideas worth returning to.</p>
+        <div class="footer-edition">End of Edition · <span id="footer-date"></span> · Gradient a day</div>
+        <nav class="footer-links" aria-label="Footer navigation">
+          <button data-action="about">About</button><span>•</span>
+          <button data-action="theme">Day / Night</button><span>•</span>
+          <button data-action="home">gradient a day</button>
+        </nav>
+      </footer>
+    </main>
+    <script src="app.js"></script>
+  </body>
+</html>
