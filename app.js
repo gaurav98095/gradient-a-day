@@ -118,10 +118,10 @@ function render() {
   $('#empty-state').hidden = visible.length !== 0;
   const noteCard = (note, featured = false) => `<article class="note ${featured ? 'top-note' : ''} ${featured && !note.image ? 'text-only-note' : ''}">
     ${featured && !state.topics.length ? '<span class="top-label">• Recent note</span>' : ''}
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.mode === 'lab' ? '' : ` · <span class="mode">${escapeHtml(note.mode || 'brief')}</span>`}${note.mode === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
-    <h2><a href="?note=${encodeURIComponent(note.file)}">${escapeHtml(note.title)}</a></h2>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.mode === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
+    <h2>${note.mode === 'lab' ? `<a href="?note=${encodeURIComponent(note.file)}">${escapeHtml(note.title)}</a>` : escapeHtml(note.title)}</h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
-    <div class="note-body">${renderMarkdown(note.summary || note.body.split(/\n\s*\n/)[0])}</div>
+    <div class="note-body">${renderMarkdown(note.mode === 'lab' ? (note.summary || note.body.split(/\n\s*\n/)[0]) : note.body)}</div>
   </article>`;
   if (!visible.length) { $('#notes').innerHTML = ''; return; }
   const columnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
@@ -135,7 +135,7 @@ function renderDetail(note) {
   $('#empty-state').hidden = true;
   $('#notes').innerHTML = `<article class="full-note">
     <a class="back-link" href="index.html">← Back to notes</a>
-    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.mode === 'lab' ? '' : ` · <span class="mode">${escapeHtml(note.mode || 'brief')}</span>`}${note.mode === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
+    <div class="note-meta"><span class="topic">${escapeHtml(note.topic)}</span>${note.mode === 'lab' ? '' : ` · ${escapeHtml(note.author)}`}${renderSource(note) ? ` · ${renderSource(note)}` : ''}</div>
     <h2>${escapeHtml(note.title)}</h2>
     ${note.image ? `<img class="note-banner" src="${escapeHtml(note.image)}" alt="${escapeHtml(note.title)}" />` : ''}
     <div class="note-body">${renderMarkdown(note.body)}</div>
