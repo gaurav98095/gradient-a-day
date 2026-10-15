@@ -34,6 +34,12 @@ function inlineMarkdown(text) {
 
 function escapeHtml(text) { return text.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character])); }
 
+function renderTopicPills() {
+  const topics = [...new Set(state.notes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
+  if (state.topic !== 'All' && !topics.includes(state.topic)) state.topic = 'All';
+  $('#topic-pills').innerHTML = ['All', ...topics].map(topic => `<button class="pill ${state.topic === topic ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('');
+}
+
 function render() {
   const visible = state.notes.filter(note => state.topic === 'All' || note.topic === state.topic);
   $('#empty-state').hidden = visible.length !== 0;
@@ -60,6 +66,7 @@ async function loadNotes() {
       return { ...parsed.meta, body:parsed.body };
     }));
     state.notes.sort((a, b) => String(b.date || '').localeCompare(String(a.date || '')));
+    renderTopicPills();
   } catch (error) {
     $('#notes').innerHTML = '<section class="empty-state"><p>Notes could not be loaded. Run <code>node build.mjs</code> once, then open the site from a local server.</p></section>';
   }
