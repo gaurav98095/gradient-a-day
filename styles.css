@@ -44,3 +44,5 @@ body.night { --paper:#1d1e1c; --ink:#ece9df; --soft:#aaa9a0; --rule:#464741; --a
   .filter-menu.open .filter-options { display:flex; }
   .filter-options .pill { width:100%; justify-content:flex-start; border-radius:3px; }
 }
+.note.top-note h2 { font-size:clamp(24px,2.4vw,31px); line-height:1.12; }
+@media (max-width:700px) { .note h2, .note.top-note h2 { font-size:23px; line-height:1.16; } }
