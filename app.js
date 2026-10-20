@@ -103,13 +103,14 @@ function renderTopicPills() {
   const modeNotes = state.notes.filter(note => state.mode === 'All' || note.mode === state.mode);
   const topics = [...new Set(modeNotes.map(note => String(note.topic || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   state.topics = state.topics.filter(topic => topics.includes(topic));
-  $('#topic-pills').innerHTML = `<button class="pill ${state.topics.length ? '' : 'active'}" data-topic-all>All</button>${topics.map(topic => `<button class="pill ${state.topics.includes(topic) ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('')}`;
+  const selection = state.topics.length ? state.topics.join(', ') : 'All';
+  $('#topic-pills').innerHTML = `<button class="filter-toggle" type="button" data-filter-toggle aria-haspopup="true" aria-expanded="false">${escapeHtml(selection)} <span aria-hidden="true">⌄</span></button><div class="filter-options"><button class="pill ${state.topics.length ? '' : 'active'}" data-topic-all>All</button>${topics.map(topic => `<button class="pill ${state.topics.includes(topic) ? 'active' : ''}" data-topic="${escapeHtml(topic)}">${escapeHtml(topic)}</button>`).join('')}</div>`;
 }
 
 function renderModePills() {
   const modes = [...new Set(state.notes.map(note => String(note.mode || '').trim()).filter(Boolean))].sort((a, b) => a.localeCompare(b));
   if (!modes.includes(state.mode)) state.mode = modes.includes('brief') ? 'brief' : modes[0] || '';
-  $('#mode-pills').innerHTML = modes.map(mode => `<button class="pill ${state.mode === mode ? 'active' : ''}" data-mode="${escapeHtml(mode)}">${escapeHtml(mode)}</button>`).join('');
+  $('#mode-pills').innerHTML = `<button class="filter-toggle" type="button" data-filter-toggle aria-haspopup="true" aria-expanded="false">${escapeHtml(state.mode)} <span aria-hidden="true">⌄</span></button><div class="filter-options">${modes.map(mode => `<button class="pill ${state.mode === mode ? 'active' : ''}" data-mode="${escapeHtml(mode)}">${escapeHtml(mode)}</button>`).join('')}</div>`;
 }
 
 function render() {
@@ -193,6 +194,13 @@ function isSecondFilterClick(kind, value) {
 }
 
 $('#topic-pills').addEventListener('click', (event) => {
+  const toggle = event.target.closest('[data-filter-toggle]');
+  if (toggle) {
+    const menu = toggle.closest('.filter-menu');
+    const open = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+    return;
+  }
   const all = event.target.closest('[data-topic-all]');
   if (all) {
     state.detail = null;
@@ -216,6 +224,13 @@ $('#topic-pills').addEventListener('click', (event) => {
 });
 
 $('#mode-pills').addEventListener('click', (event) => {
+  const toggle = event.target.closest('[data-filter-toggle]');
+  if (toggle) {
+    const menu = toggle.closest('.filter-menu');
+    const open = menu.classList.toggle('open');
+    toggle.setAttribute('aria-expanded', String(open));
+    return;
+  }
   const pill = event.target.closest('[data-mode]');
   if (!pill) return;
   state.detail = null;
@@ -224,6 +239,13 @@ $('#mode-pills').addEventListener('click', (event) => {
   renderTopicPills();
   renderModePills();
   render();
+});
+document.addEventListener('click', (event) => {
+  if (event.target.closest('.filter-menu')) return;
+  document.querySelectorAll('.filter-menu.open').forEach(menu => {
+    menu.classList.remove('open');
+    menu.querySelector('[data-filter-toggle]')?.setAttribute('aria-expanded', 'false');
+  });
 });
 let previousColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3;
 window.addEventListener('resize', () => { const nextColumnCount = window.innerWidth <= 700 ? 1 : window.innerWidth <= 980 ? 2 : 3; if (nextColumnCount !== previousColumnCount) { previousColumnCount = nextColumnCount; render(); } });
