@@ -1,5 +1,6 @@
 {
   "files": [
+    "lab/2026-10-23-online-softmax-flash-attention.md",
     "brief/2026-10-20-vit.md",
     "lab/2026-10-15-gradient-accumulation.md",
     "brief/2026-10-15-jina-embeddings-v3.md",

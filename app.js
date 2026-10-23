@@ -25,6 +25,7 @@ function renderMarkdown(markdown) {
   let listType = null;
   let code = null;
   let codeLanguage = '';
+  let math = null;
 
   const flushParagraph = () => {
     if (paragraph.length) output.push(`<p>${inlineMarkdown(paragraph.join(' '))}</p>`);
@@ -42,6 +43,12 @@ function renderMarkdown(markdown) {
       else { output.push(renderCodeBlock(code.join('\n'), codeLanguage)); code = null; codeLanguage = ''; }
       return;
     }
+    if (line.trim() === '$$') {
+      if (math === null) { flushParagraph(); flushList(); math = []; }
+      else { output.push(renderMathBlock(math.join('\n'))); math = null; }
+      return;
+    }
+    if (math !== null) { math.push(line); return; }
     if (code !== null) { code.push(line); return; }
     if (!line.trim()) { flushParagraph(); flushList(); return; }
     const heading = line.match(/^(#{1,3})\s+(.+)$/);
@@ -52,6 +59,7 @@ function renderMarkdown(markdown) {
     flushList(); paragraph.push(line.trim());
   });
   if (code !== null) output.push(renderCodeBlock(code.join('\n'), codeLanguage));
+  if (math !== null) output.push(renderMathBlock(math.join('\n')));
   flushParagraph();
   flushList();
   return output.join('');
@@ -78,13 +86,52 @@ function highlightPython(code) {
   }).join('');
 }
 
+function renderMathBlock(expression) {
+  return `<div class="math-block" role="math">${renderMathExpression(expression)}</div>`;
+}
+
+function renderMathExpression(expression) {
+  return escapeHtml(expression)
+    .replace(/\\operatorname\{([^}]+)\}/g, '$1')
+    .replace(/\\text\{([^}]+)\}/g, '$1')
+    .replace(/\\frac\{e\^\{([^}]+)\}\}\{\\sum_?j e\^\{([^}]+)\}\}/g, '<span class="fraction"><span class="numerator">e<sup>$1</sup></span><span class="denominator"><span class="sum-operator"><span class="sum-symbol">∑</span><span class="sum-lower">j</span></span> e<sup>$2</sup></span></span>')
+    .replace(/\\frac\{e\^\{([^}]+)\}\}\{\\sum_\{([^}]+)\}\^\{([^}]+)\} e\^\{([^}]+)\}\}/g, '<span class="fraction"><span class="numerator">e<sup>$1</sup></span><span class="denominator"><span class="sum-operator"><span class="sum-upper">$3</span><span class="sum-symbol">∑</span><span class="sum-lower">$2</span></span> e<sup>$4</sup></span></span>')
+    .replace(/\\frac\{e\^\{([^}]+)\}\}\{([^{}]+)\}/g, '<span class="fraction"><span class="numerator">e<sup>$1</sup></span><span class="denominator">$2</span></span>')
+    .replace(/\\frac\{([^{}]+)\}\{([^{}]+)\}/g, '<span class="fraction"><span class="numerator">$1</span><span class="denominator">$2</span></span>')
+    .replace(/\\sum(?:_\{([^}]+)\}|_([A-Za-z0-9]+))(?:\^\{([^}]+)\}|\^([A-Za-z0-9]+))?/g, (_, lowerLong, lowerShort, upperLong, upperShort) => `<span class="sum-operator">${upperLong || upperShort ? `<span class="sum-upper">${upperLong || upperShort}</span>` : ''}<span class="sum-symbol">∑</span><span class="sum-lower">${lowerLong || lowerShort}</span></span>`)
+    .replace(/\\sum/g, '∑')
+    .replace(/\\max/g, 'max')
+    .replace(/\\ell/g, 'ℓ')
+    .replace(/\\qquad/g, ' ')
+    .replace(/\\quad/g, ' ')
+    .replace(/\\in/g, '∈')
+    .replace(/\\,/g, ' ')
+    .replace(/\\cdot/g, '·')
+    .replace(/\\ldots/g, '…')
+    .replace(/\\approx/g, '≈')
+    .replace(/\\times/g, '×')
+    .replace(/\\left|\\right/g, '')
+    .replace(/\^\{([^}]+)\}/g, '<sup>$1</sup>')
+    .replace(/_\{([^}]+)\}/g, '<sub>$1</sub>')
+    .replace(/\^([A-Za-z0-9])/g, '<sup>$1</sup>')
+    .replace(/_([A-Za-z0-9])/g, '<sub>$1</sub>')
+    .replace(/[{}]/g, '');
+}
+
 function inlineMarkdown(text) {
-  return escapeHtml(text)
+  const mathParts = [];
+  const withMathPlaceholders = text.replace(/\$([^$\n]+)\$|\\\(([^\n]+?)\\\)/g, (_, dollarExpression, parenExpression) => {
+    const expression = dollarExpression || parenExpression;
+    mathParts.push(`\\(${expression}\\)`);
+    return `@@MATH_${mathParts.length - 1}@@`;
+  });
+  return escapeHtml(withMathPlaceholders)
     .replace(/!\[([^\]]*)\]\(([^)\s]+)\)/g, '<img class="inline-note-image" src="$2" alt="$1" loading="lazy">')
     .replace(/\[([^\]]+)\]\((https?:\/\/[^)\s]+)\)/g, '<a href="$2" target="_blank" rel="noreferrer">$1</a>')
     .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
     .replace(/\*(.+?)\*/g, '<em>$1</em>')
-    .replace(/`(.+?)`/g, '<code>$1</code>');
+    .replace(/`(.+?)`/g, '<code>$1</code>')
+    .replace(/@@MATH_(\d+)@@/g, (_, index) => renderMathExpression(mathParts[Number(index)].slice(2, -2)));
 }
 
 function escapeHtml(text) { return text.replace(/[&<>"']/g, character => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[character])); }
