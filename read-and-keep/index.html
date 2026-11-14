@@ -1,0 +1,82 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="A simple index of papers, ideas, and notes to keep." />
+    <title>Read &amp; keep — Paper index</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <main class="sheet">
+      <header class="page-header">
+        <div class="header-row">
+          <span class="brand">Gradient a day <span>/</span> Read &amp; keep</span>
+          <code class="address">/read-and-keep</code>
+        </div>
+        <h1>Read &amp; keep</h1>
+        <p class="subtitle">A simple list of papers worth opening again.</p>
+      </header>
+
+      <section class="table-section" aria-labelledby="paper-index-title">
+        <div class="table-toolbar">
+          <h2 id="paper-index-title">Paper index</h2>
+          <span id="paper-count">Loading papers…</span>
+        </div>
+
+        <div class="table-scroll">
+          <table>
+            <caption class="sr-only">Papers, key ideas, and key takeaways</caption>
+            <colgroup>
+              <col class="paper-column" />
+              <col class="ideas-column" />
+              <col class="takeaways-column" />
+            </colgroup>
+            <thead>
+              <tr>
+                <th scope="col">Paper</th>
+                <th scope="col">Key ideas</th>
+                <th scope="col">Key takeaways</th>
+              </tr>
+            </thead>
+            <tbody id="paper-rows">
+              <tr><td colspan="3" class="loading-cell">Loading paper index…</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <footer class="page-footer">Paper index · links open the original paper · edit the Markdown files to add more</footer>
+    </main>
+
+    <dialog class="paper-dialog" id="paper-dialog" aria-labelledby="dialog-title">
+      <div class="dialog-card">
+        <div class="dialog-topline">
+          <span>READ &amp; KEEP / PAPER NOTE</span>
+          <button class="close-button" id="close-dialog" type="button" aria-label="Close paper note">×</button>
+        </div>
+        <div class="dialog-body">
+          <p class="dialog-kicker" id="dialog-kicker"></p>
+          <h2 id="dialog-title"></h2>
+          <a class="dialog-link" id="dialog-link" href="#" target="_blank" rel="noreferrer">Open actual paper ↗</a>
+          <div class="dialog-columns">
+            <section>
+              <h3>Key ideas</h3>
+              <div id="dialog-ideas"></div>
+            </section>
+            <section class="dialog-takeaways">
+              <h3>Key takeaways</h3>
+              <div id="dialog-takeaways"></div>
+            </section>
+            <section>
+              <h3>Notes &amp; pointers</h3>
+              <div id="dialog-notes"></div>
+            </section>
+          </div>
+        </div>
+      </div>
+    </dialog>
+
+    <script src="app.js?v=6"></script>
+  </body>
+</html>
