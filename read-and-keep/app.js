@@ -50,12 +50,16 @@ function listMarkup(items = []) {
 function renderRows(papers) {
   rows.innerHTML = papers.map(paper => `<tr>
     <td>
-      <span class="row-number">${escapeHtml(paper.index)}</span>
-      <button class="paper-title" type="button" data-paper-id="${escapeHtml(paper.id)}">${escapeHtml(paper.title)}</button>
-      <a class="paper-link" href="${escapeHtml(paper.url)}" target="_blank" rel="noreferrer">Open actual paper ↗</a>
-      <span class="paper-meta">${escapeHtml(paper.authors)} · ${escapeHtml(paper.year)}</span>
+      <div class="paper-heading">
+        <span class="row-number">${escapeHtml(paper.index)}</span>
+        <button class="paper-title" type="button" data-paper-id="${escapeHtml(paper.id)}">${escapeHtml(paper.title)}</button>
+      </div>
+      <div class="paper-meta-row">
+        <a class="paper-link" href="${escapeHtml(paper.url)}" target="_blank" rel="noreferrer">Open actual paper ↗</a>
+        <span class="paper-meta">${escapeHtml(paper.authors)} · ${escapeHtml(paper.year)}</span>
+      </div>
     </td>
-    <td><span class="category-label">${escapeHtml(paper.category)}</span></td>
+    <td class="category-cell"><span class="category-label">${escapeHtml(paper.category)}</span></td>
     <td>${listMarkup(paper.ideas)}</td>
     <td class="takeaways">${listMarkup(paper.takeaways)}</td>
   </tr>`).join('');
