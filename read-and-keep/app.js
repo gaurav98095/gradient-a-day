@@ -55,17 +55,18 @@ function renderRows(papers) {
       <a class="paper-link" href="${escapeHtml(paper.url)}" target="_blank" rel="noreferrer">Open actual paper ↗</a>
       <span class="paper-meta">${escapeHtml(paper.authors)} · ${escapeHtml(paper.year)}</span>
     </td>
+    <td><span class="category-label">${escapeHtml(paper.category)}</span></td>
     <td>${listMarkup(paper.ideas)}</td>
     <td class="takeaways">${listMarkup(paper.takeaways)}</td>
   </tr>`).join('');
   papers.forEach(paper => paperById.set(paper.id, paper));
-  paperCount.textContent = `${papers.length} paper${papers.length === 1 ? '' : 's'} · 3 columns · click a title to open the card`;
+  paperCount.textContent = `${papers.length} paper${papers.length === 1 ? '' : 's'} · 4 columns · click a title to open the card`;
 }
 
 async function loadPapers() {
   if (window.location.protocol === 'file:') {
     paperCount.textContent = 'Local server needed';
-    rows.innerHTML = '<tr><td colspan="3" class="loading-cell"><strong>Open this page through a local server.</strong><br>From the project folder, run <code>python3 -m http.server 8000</code>, then visit <code>http://localhost:8000/read-and-keep/</code>.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="4" class="loading-cell"><strong>Open this page through a local server.</strong><br>From the project folder, run <code>python3 -m http.server 8000</code>, then visit <code>http://localhost:8000/read-and-keep/</code>.</td></tr>';
     return;
   }
 
@@ -90,7 +91,7 @@ async function loadPapers() {
     renderRows(papers);
   } catch (error) {
     paperCount.textContent = 'Paper index unavailable';
-    rows.innerHTML = '<tr><td colspan="3" class="loading-cell"><strong>Could not load the Markdown paper files.</strong><br>Check that the local server is running and that the URL is <code>/read-and-keep/</code>.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="4" class="loading-cell"><strong>Could not load the Markdown paper files.</strong><br>Check that the local server is running and that the URL is <code>/read-and-keep/</code>.</td></tr>';
     console.error(error);
   }
 }
@@ -98,7 +99,7 @@ async function loadPapers() {
 function openPaper(id) {
   const paper = paperById.get(id);
   if (!paper) return;
-  dialogKicker.textContent = `${paper.index} · ${paper.authors} · ${paper.year}`;
+  dialogKicker.textContent = `${paper.index} · ${paper.category} · ${paper.authors} · ${paper.year}`;
   dialogTitle.textContent = paper.title;
   dialogLink.href = paper.url;
   dialogIdeas.innerHTML = listMarkup(paper.ideas);

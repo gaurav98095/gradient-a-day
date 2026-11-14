@@ -1,5 +1,6 @@
 ---
 index: 01
+category: Dataset
 title: MIEB: Massive Image Embedding Benchmark
 authors: Xiao et al.
 year: 2025
