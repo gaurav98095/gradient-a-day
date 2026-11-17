@@ -5,8 +5,6 @@ const closeButton = document.querySelector('#close-dialog');
 const dialogKicker = document.querySelector('#dialog-kicker');
 const dialogTitle = document.querySelector('#dialog-title');
 const dialogLink = document.querySelector('#dialog-link');
-const dialogIdeas = document.querySelector('#dialog-ideas');
-const dialogTakeaways = document.querySelector('#dialog-takeaways');
 const dialogNotes = document.querySelector('#dialog-notes');
 const paperById = new Map();
 
@@ -60,17 +58,16 @@ function renderRows(papers) {
       </div>
     </td>
     <td class="category-cell"><span class="category-label">${escapeHtml(paper.category)}</span></td>
-    <td>${listMarkup(paper.ideas)}</td>
     <td class="takeaways">${listMarkup(paper.takeaways)}</td>
   </tr>`).join('');
   papers.forEach(paper => paperById.set(paper.id, paper));
-  paperCount.textContent = `${papers.length} paper${papers.length === 1 ? '' : 's'} · 4 columns · click a title to open the card`;
+  paperCount.textContent = `${papers.length} paper${papers.length === 1 ? '' : 's'} · click a title for notes & pointers`;
 }
 
 async function loadPapers() {
   if (window.location.protocol === 'file:') {
     paperCount.textContent = 'Local server needed';
-    rows.innerHTML = '<tr><td colspan="4" class="loading-cell"><strong>Open this page through a local server.</strong><br>From the project folder, run <code>python3 -m http.server 8000</code>, then visit <code>http://localhost:8000/read-and-keep/</code>.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="3" class="loading-cell"><strong>Open this page through a local server.</strong><br>From the project folder, run <code>python3 -m http.server 8000</code>, then visit <code>http://localhost:8000/read-and-keep/</code>.</td></tr>';
     return;
   }
 
@@ -95,7 +92,7 @@ async function loadPapers() {
     renderRows(papers);
   } catch (error) {
     paperCount.textContent = 'Paper index unavailable';
-    rows.innerHTML = '<tr><td colspan="4" class="loading-cell"><strong>Could not load the Markdown paper files.</strong><br>Check that the local server is running and that the URL is <code>/read-and-keep/</code>.</td></tr>';
+    rows.innerHTML = '<tr><td colspan="3" class="loading-cell"><strong>Could not load the Markdown paper files.</strong><br>Check that the local server is running and that the URL is <code>/read-and-keep/</code>.</td></tr>';
     console.error(error);
   }
 }
@@ -106,9 +103,8 @@ function openPaper(id) {
   dialogKicker.textContent = `${paper.index} · ${paper.category} · ${paper.authors} · ${paper.year}`;
   dialogTitle.textContent = paper.title;
   dialogLink.href = paper.url;
-  dialogIdeas.innerHTML = listMarkup(paper.ideas);
-  dialogTakeaways.innerHTML = listMarkup(paper.takeaways);
-  dialogNotes.innerHTML = listMarkup(paper.notes);
+  const detailedNotes = [...new Set([...(paper.ideas || []), ...(paper.notes || [])])];
+  dialogNotes.innerHTML = listMarkup(detailedNotes);
   dialog.showModal();
   requestAnimationFrame(() => dialog.classList.add('is-open'));
 }

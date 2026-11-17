@@ -13,6 +13,6 @@ takeaways:
 - Product relevance is more nuanced than relevant or irrelevant.
 - ESCI is the main idea I want to remember.
 notes:
-- Main reference: ESCI markup for product-search relevance.
-- The labels distinguish direct matches, alternatives, add-ons, and non-matches.
+- The dataset is most useful when evaluating whether search systems understand the relationship between a query and a product, not just whether the product contains matching words.
+- Its relevance scheme makes ranking errors more diagnosable: a substitute and a complementary product can both be useful, but they should not be treated as exact matches.
 ---

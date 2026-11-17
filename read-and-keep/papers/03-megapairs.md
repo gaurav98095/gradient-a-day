@@ -13,9 +13,8 @@ ideas:
 takeaways:
 - Clean synthetic data can outperform much larger existing datasets.
 notes:
-- Each example is a composed-retrieval triplet: query image, text instruction, and target image, with hard negatives for training.
-- The mining starts from a 20-million-image subset of Recap-DataComp-1B and combines complementary similarity signals rather than relying on one model.
-- The 0.8–0.96 similarity range balances relatedness with diversity and avoids weak matches or near-duplicates.
-- MMRet models are evaluated on composed image retrieval benchmarks such as CIRCO, CIRR, FashionIQ, and GeneCIS, as well as the 36-task MMEB benchmark.
-- A useful comparison is that a small MegaPairs subset can outperform MagicLens trained on far more data, showing the value of data quality and construction.
+- Each training example asks a model to move from a query image and natural-language instruction to a target image, with hard negatives included to sharpen the retrieval decision.
+- The source pool is a 20-million-image subset of Recap-DataComp-1B; the pipeline turns broad open-domain imagery into targeted retrieval supervision.
+- MMRet is evaluated across composed-retrieval benchmarks including CIRCO, CIRR, FashionIQ, and GeneCIS, then checked against the broader 36-task MMEB suite.
+- The comparison with MagicLens suggests that careful example construction can matter more than simply adding more training images.
 ---

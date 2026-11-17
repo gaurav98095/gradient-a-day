@@ -15,7 +15,7 @@
           <code class="address">/read-and-keep</code>
         </div>
         <h1>Read &amp; keep</h1>
-        <p class="subtitle">A simple list of papers worth opening again.</p>
+        <p class="subtitle">A focused index of papers worth opening again. Click a title for the detailed notes.</p>
       </header>
 
       <section class="table-section" aria-labelledby="paper-index-title">
@@ -26,29 +26,27 @@
 
         <div class="table-scroll">
           <table>
-            <caption class="sr-only">Papers, categories, pointers, and takeaways</caption>
+            <caption class="sr-only">Papers, categories, and key takeaways</caption>
             <colgroup>
               <col class="paper-column" />
               <col class="category-column" />
-              <col class="ideas-column" />
               <col class="takeaways-column" />
             </colgroup>
             <thead>
               <tr>
                 <th scope="col">Paper</th>
                 <th scope="col">Category</th>
-                <th scope="col">Pointers</th>
-                <th scope="col">Takeaways</th>
+                <th scope="col">Key takeaway</th>
               </tr>
             </thead>
             <tbody id="paper-rows">
-              <tr><td colspan="4" class="loading-cell">Loading paper index…</td></tr>
+              <tr><td colspan="3" class="loading-cell">Loading paper index…</td></tr>
             </tbody>
           </table>
         </div>
       </section>
 
-      <footer class="page-footer">Paper index · links open the original paper · edit the Markdown files to add more</footer>
+      <footer class="page-footer">Paper index · click a title for notes &amp; pointers · links open the original paper</footer>
     </main>
 
     <dialog class="paper-dialog" id="paper-dialog" aria-labelledby="dialog-title">
@@ -61,24 +59,14 @@
           <p class="dialog-kicker" id="dialog-kicker"></p>
           <h2 id="dialog-title"></h2>
           <a class="dialog-link" id="dialog-link" href="#" target="_blank" rel="noreferrer">Open actual paper ↗</a>
-          <div class="dialog-columns">
-            <section>
-              <h3>Pointers</h3>
-              <div id="dialog-ideas"></div>
-            </section>
-            <section class="dialog-takeaways">
-              <h3>Takeaways</h3>
-              <div id="dialog-takeaways"></div>
-            </section>
-            <section>
-              <h3>Notes &amp; pointers</h3>
-              <div id="dialog-notes"></div>
-            </section>
-          </div>
+          <section class="dialog-notes-section">
+            <h3>Notes &amp; pointers</h3>
+            <div id="dialog-notes"></div>
+          </section>
         </div>
       </div>
     </dialog>
 
-    <script src="app.js?v=6"></script>
+    <script src="app.js?v=7"></script>
   </body>
 </html>
