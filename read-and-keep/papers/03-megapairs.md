@@ -6,6 +6,16 @@ title: MegaPairs: Massive Data Synthesis for Universal Multimodal Retrieval
 authors: Junjie Zhou et al.
 year: 2025
 url: https://arxiv.org/abs/2412.14475
+keywords:
+- MegaPairs
+- multimodal retrieval
+- data synthesis
+- synthetic data
+- hard negatives
+- composed retrieval
+- image pairs
+- instruction-based retrieval
+- MMRet
 ideas:
 - MegaPairs creates more than 26 million multimodal retrieval training triplets from open-domain image data.
 - It mines image pairs with EVA-CLIP semantic similarity, DINOv2 visual-pattern similarity, and EVA-CLIP caption similarity, keeping scores between 0.8 and 0.96.

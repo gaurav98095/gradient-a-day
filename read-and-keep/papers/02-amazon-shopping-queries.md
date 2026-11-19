@@ -6,6 +6,16 @@ title: Shopping Queries Dataset: A Large-Scale ESCI Benchmark for Improving Prod
 authors: Chandan K. Reddy et al.
 year: 2022
 url: https://arxiv.org/abs/2206.06588
+keywords:
+- ESCI
+- Amazon
+- shopping queries
+- product search
+- query-product relevance
+- exact
+- substitute
+- complement
+- irrelevant
 ideas:
 - Real Amazon query-product pairs, labeled by humans.
 - ESCI replaces binary relevance: Exact, Substitute, Complement, Irrelevant.

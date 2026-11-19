@@ -43,7 +43,7 @@ function parseFrontMatter(markdown) {
     const field = line.match(/^([a-zA-Z0-9_-]+):\s*(.*)$/);
     if (!field) return;
     const [, key, rawValue] = field;
-    if (key === 'ideas' || key === 'takeaways' || key === 'notes') {
+    if (key === 'ideas' || key === 'takeaways' || key === 'notes' || key === 'keywords') {
       meta[key] = [];
       activeList = key;
     } else {
@@ -86,8 +86,7 @@ function renderRows(papers) {
 function applyFilters() {
   const query = searchInput.value.trim().toLocaleLowerCase();
   const filtered = allPapers.filter(paper => {
-    const matchesTitle = !query || paper.title.toLocaleLowerCase().includes(query);
-    return matchesTitle;
+    return !query || searchableText(paper).includes(query);
   });
   renderRows(filtered);
 }
@@ -96,6 +95,13 @@ function clearFilters() {
   searchInput.value = '';
   renderRows(allPapers);
   searchInput.focus();
+}
+
+function searchableText(paper) {
+  return [paper.title, paper.category, paper.authors, ...(paper.keywords || [])]
+    .filter(Boolean)
+    .join(' ')
+    .toLocaleLowerCase();
 }
 
 async function loadPapers() {

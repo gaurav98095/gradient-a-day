@@ -6,6 +6,18 @@ title: Zero-Shot Composed Image Retrieval with Textual Inversion
 authors: Alberto Baldrati et al.
 year: 2023
 url: https://arxiv.org/abs/2303.15247
+keywords:
+- SEARLE
+- zero-shot CIR
+- composed image retrieval
+- textual inversion
+- pseudo-word token
+- CLIP
+- CIRCO
+- cross-modal mapping
+- FashionIQ
+- CIRR
+- textual inversion network
 ideas:
 - The paper introduces zero-shot composed image retrieval (ZS-CIR): retrieve a target image from a reference image and a relative caption without labeled CIR training data.
 - SEARLE maps the reference image's visual features to a pseudo-word token in CLIP's text-token embedding space, then combines that token with the relative caption.

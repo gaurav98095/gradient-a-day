@@ -6,6 +6,18 @@ title: MOON: Generative MLLM-based Multimodal Representation Learning for E-comm
 authors: Daoze Zhang et al.
 year: 2025
 url: https://arxiv.org/abs/2508.11999
+keywords:
+- MOON
+- MLLM
+- multimodal representation
+- e-commerce
+- product understanding
+- guided MoE
+- mixture of experts
+- core cropping
+- purchase behavior
+- contrastive learning
+- hard negatives
 ideas:
 - MOON uses a generative multimodal LLM to produce unified product embeddings from text, images, and image-text queries.
 - Qwen2.5-VL detects the core product region; the model then feeds both the original image and cropped image through the vision encoder and projector, while product text is tokenized for joint processing in the LLM.

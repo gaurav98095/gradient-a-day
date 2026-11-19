@@ -6,6 +6,15 @@ title: MIEB: Massive Image Embedding Benchmark
 authors: Xiao et al.
 year: 2025
 url: https://arxiv.org/abs/2504.10471
+keywords:
+- image embeddings
+- image-text embeddings
+- MIEB-lite
+- retrieval
+- probing
+- clustering
+- compositionality
+- visual question answering
 ideas:
 - MIEB evaluates image and image-text embeddings across 130 tasks; MIEB-lite keeps a representative 51-task version.
 - The benchmark is embedding-first rather than generation-first, covering image-only, text-image, and interleaved inputs.

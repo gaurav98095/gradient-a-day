@@ -24,6 +24,9 @@ title: Full paper title
 authors: First Author et al.
 year: 2026
 url: https://arxiv.org/abs/...
+keywords:
+- Distinct concept, method, dataset, or acronym users may search for.
+- Another useful retrieval term.
 ideas:
 - What the paper builds or proposes.
 - The important architecture, data, or training idea.
@@ -41,6 +44,7 @@ notes:
 ## Writing rules
 
 - Use the canonical paper title, author list, publication year, and paper URL. Check the paper page when metadata is uncertain.
+- Add a `keywords` list with distinctive acronyms, methods, datasets, tasks, and concepts that someone might use to find the paper later. Include terms that do not appear in the title.
 - `date` means the date the paper was added to Read & Keep, not the paper's publication date. For existing papers, infer it from the first Git commit that added the paper file. For a new paper, use the current date.
 - Keep `takeaways` short because they appear directly in the table—usually one or two compact bullets. They must represent the user's new learning or personal insight, not a generic paper summary.
 - Make `notes` the useful reading view: roughly three or four concise bullets covering what the paper presents—the core idea, method/data, architecture or training setup, and findings. These appear in the paper dialog under “Key ideas & findings.”
@@ -53,7 +57,7 @@ notes:
 
 - `papers/index.json` is the manifest loaded by `app.js`; every listed Markdown file must exist.
 - `app.js` parses the front matter, sorts papers by descending `index`, renders the table, and combines `ideas` plus `notes` in the detail dialog.
-- The index includes a compact instant title search in the paper-index toolbar; keep it working when changing the table or paper metadata. Keep the toolbar minimal so the paper table gets most of the page.
+- The index includes a compact instant search in the paper-index toolbar. Search matches paper title, category, authors, and `keywords`, so keep keyword metadata useful and specific when changing paper entries. Keep the toolbar minimal so the paper table gets most of the page.
 - Keep the existing visual language in `styles.css`: restrained editorial styling, readable typography, compact metadata, and responsive horizontal scrolling for the table.
 - If the table structure changes, update the column definitions, headings, loading/error `colspan` values, and responsive styles together.
 
