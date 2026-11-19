@@ -12,8 +12,8 @@ ideas:
 - A guided Mixture-of-Experts module routes category- and attribute-related information to specialized experts inside the LLM's feed-forward layers.
 - The final representation is the mean-pooled hidden state from the LLM, supporting retrieval, classification, and attribute prediction.
 takeaways:
-- Purchase history is a useful contrastive signal.
-- Guided MoE improves category and attribute encoding.
+- User purchase history can be used as a contrastive learning signal.
+- Guided MoE can specialize embeddings around product aspects.
 notes:
 - MOON uses a generative MLLM to jointly represent product text, the original image, and a cropped core-product image.
 - Qwen2.5-VL removes background distraction; a guided MoE specializes in category- and attribute-related information before mean pooling produces the embedding.

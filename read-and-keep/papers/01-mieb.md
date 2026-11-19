@@ -11,7 +11,7 @@ ideas:
 - The benchmark is embedding-first rather than generation-first, covering image-only, text-image, and interleaved inputs.
 - MIEB-lite removes redundant tasks using model-performance correlations while preserving category coverage.
 takeaways:
-- MIEB is easy to extend with new datasets.
+- Benchmarks are more reusable when their dataset interface is extensible.
 - MLLMs win overall; CLIP models lead on probing and classification.
 notes:
 - MIEB evaluates image and image-text embeddings across 130 tasks; MIEB-lite provides a representative 51-task version.

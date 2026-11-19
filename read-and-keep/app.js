@@ -114,7 +114,7 @@ function openPaper(id) {
   dialogKicker.textContent = `${paper.index} · ${formatPaperDate(paper.date)} · ${paper.category} · ${paper.authors} · ${paper.year}`;
   dialogTitle.textContent = paper.title;
   dialogLink.href = paper.url;
-  const detailedNotes = [...new Set((paper.notes?.length ? paper.notes : paper.ideas || []).filter(Boolean))];
+  const detailedNotes = [...new Set([...(paper.ideas || []), ...(paper.notes || [])].filter(Boolean))];
   dialogNotes.innerHTML = listMarkup(detailedNotes);
   dialog.showModal();
   requestAnimationFrame(() => dialog.classList.add('is-open'));

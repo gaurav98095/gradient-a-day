@@ -12,7 +12,7 @@ ideas:
 - InternVL2-26B describes each image pair, and LLaMA 3 8B turns those descriptions into open-ended retrieval instructions.
 - The authors train MMRet-Base and MMRet-Large with CLIP backbones, plus MMRet-MLLM with a LLaVA-1.6 backbone.
 takeaways:
-- Clean synthetic data can outperform much larger existing datasets.
+- Careful synthetic data construction can matter more than dataset size.
 notes:
 - MegaPairs builds more than 26 million retrieval triplets from a 20-million-image subset of Recap-DataComp-1B.
 - It mines semantically related but visually distinct pairs, then uses InternVL2-26B and LLaMA 3 8B to generate descriptions and retrieval instructions.

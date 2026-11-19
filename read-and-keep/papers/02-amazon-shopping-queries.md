@@ -11,8 +11,8 @@ ideas:
 - ESCI replaces binary relevance: Exact, Substitute, Complement, Irrelevant.
 - Queries cover English, Japanese, and Spanish, selected using search and shopping signals.
 takeaways:
-- Product relevance is more nuanced than relevant or irrelevant.
-- ESCI is the main idea I want to remember.
+- Search relevance is not binary; substitutes and complements should be modeled separately.
+- ESCI's four-way relevance scheme is the main idea I want to remember.
 notes:
 - ESCI contains human-labeled Amazon query–product pairs in English, Japanese, and Spanish.
 - Its four labels—Exact, Substitute, Complement, and Irrelevant—capture shopping intent beyond binary relevance.
