@@ -6,7 +6,10 @@ const dialogKicker = document.querySelector('#dialog-kicker');
 const dialogTitle = document.querySelector('#dialog-title');
 const dialogLink = document.querySelector('#dialog-link');
 const dialogNotes = document.querySelector('#dialog-notes');
+const searchInput = document.querySelector('#paper-search');
+const filterStatus = document.querySelector('#filter-status');
 const paperById = new Map();
+let allPapers = [];
 
 function escapeHtml(value = '') {
   return String(value).replace(/[&<>"']/g, character => ({
@@ -56,7 +59,8 @@ function listMarkup(items = []) {
 }
 
 function renderRows(papers) {
-  rows.innerHTML = papers.map(paper => `<tr>
+  paperById.clear();
+  rows.innerHTML = papers.length ? papers.map(paper => `<tr>
     <td>
       <div class="paper-heading">
         <span class="row-number">${escapeHtml(paper.index)}</span>
@@ -70,9 +74,28 @@ function renderRows(papers) {
     <td class="date-cell"><time datetime="${escapeHtml(paper.date)}">${escapeHtml(formatPaperDate(paper.date))}</time></td>
     <td class="category-cell"><span class="category-label">${escapeHtml(paper.category)}</span></td>
     <td class="takeaways">${listMarkup(paper.takeaways)}</td>
-  </tr>`).join('');
+  </tr>`).join('') : '<tr><td colspan="4" class="empty-filter-cell"><strong>No papers match these filters.</strong><br>Try a different title or clear the filters.</td></tr>';
   papers.forEach(paper => paperById.set(paper.id, paper));
-  paperCount.textContent = `${papers.length} paper${papers.length === 1 ? '' : 's'} · click a title for notes & pointers`;
+  const total = allPapers.length;
+  paperCount.textContent = papers.length === total
+    ? `${total} paper${total === 1 ? '' : 's'}`
+    : `${papers.length} of ${total} papers`;
+  filterStatus.textContent = `${papers.length} matching paper${papers.length === 1 ? '' : 's'}`;
+}
+
+function applyFilters() {
+  const query = searchInput.value.trim().toLocaleLowerCase();
+  const filtered = allPapers.filter(paper => {
+    const matchesTitle = !query || paper.title.toLocaleLowerCase().includes(query);
+    return matchesTitle;
+  });
+  renderRows(filtered);
+}
+
+function clearFilters() {
+  searchInput.value = '';
+  renderRows(allPapers);
+  searchInput.focus();
 }
 
 async function loadPapers() {
@@ -93,14 +116,14 @@ async function loadPapers() {
     const manifestResponse = await fetch(new URL('index.json', papersUrl), { cache: 'no-store' });
     if (!manifestResponse.ok) throw new Error('Could not load paper index');
     const manifest = await manifestResponse.json();
-    const papers = await Promise.all(manifest.files.map(async file => {
+    allPapers = await Promise.all(manifest.files.map(async file => {
       const response = await fetch(new URL(file, papersUrl), { cache: 'no-store' });
       if (!response.ok) throw new Error(`Could not load ${file}`);
       const parsed = parseFrontMatter(await response.text());
       return { ...parsed.meta, id: file };
     }));
-    papers.sort((a, b) => Number(b.index) - Number(a.index));
-    renderRows(papers);
+    allPapers.sort((a, b) => Number(b.index) - Number(a.index));
+    renderRows(allPapers);
   } catch (error) {
     paperCount.textContent = 'Paper index unavailable';
     rows.innerHTML = '<tr><td colspan="4" class="loading-cell"><strong>Could not load the Markdown paper files.</strong><br>Check that the local server is running and that the URL is <code>/read-and-keep/</code>.</td></tr>';
@@ -129,6 +152,16 @@ function closePaper() {
 rows.addEventListener('click', event => {
   const button = event.target.closest('[data-paper-id]');
   if (button) openPaper(button.dataset.paperId);
+});
+searchInput.addEventListener('input', applyFilters);
+document.addEventListener('keydown', event => {
+  const target = event.target;
+  const isTyping = target instanceof HTMLInputElement || target instanceof HTMLTextAreaElement || target.isContentEditable;
+  if (event.key === '/' && !isTyping && !dialog.open) {
+    event.preventDefault();
+    searchInput.focus();
+  }
+  if (event.key === 'Escape' && !dialog.open && searchInput.value) clearFilters();
 });
 closeButton.addEventListener('click', closePaper);
 dialog.addEventListener('cancel', event => { event.preventDefault(); closePaper(); });

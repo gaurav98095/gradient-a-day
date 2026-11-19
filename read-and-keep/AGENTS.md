@@ -53,6 +53,7 @@ notes:
 
 - `papers/index.json` is the manifest loaded by `app.js`; every listed Markdown file must exist.
 - `app.js` parses the front matter, sorts papers by descending `index`, renders the table, and combines `ideas` plus `notes` in the detail dialog.
+- The index includes a compact instant title search in the paper-index toolbar; keep it working when changing the table or paper metadata. Keep the toolbar minimal so the paper table gets most of the page.
 - Keep the existing visual language in `styles.css`: restrained editorial styling, readable typography, compact metadata, and responsive horizontal scrolling for the table.
 - If the table structure changes, update the column definitions, headings, loading/error `colspan` values, and responsive styles together.
 

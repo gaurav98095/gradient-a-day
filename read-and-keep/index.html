@@ -11,18 +11,29 @@
     <main class="sheet">
       <header class="page-header">
         <div class="header-row">
-          <span class="brand">Gradient a day <span>/</span> Read &amp; keep</span>
+          <div class="header-title-block">
+            <h1>Read &amp; keep</h1>
+            <p class="subtitle">A focused index of papers worth opening again. Click a title for the detailed notes.</p>
+          </div>
           <code class="address">/read-and-keep</code>
         </div>
-        <h1>Read &amp; keep</h1>
-        <p class="subtitle">A focused index of papers worth opening again. Click a title for the detailed notes.</p>
       </header>
 
       <section class="table-section" aria-labelledby="paper-index-title">
         <div class="table-toolbar">
-          <h2 id="paper-index-title">Paper index</h2>
-          <span id="paper-count">Loading papers…</span>
+          <div class="table-toolbar-heading">
+            <h2 id="paper-index-title">Paper index</h2>
+            <span id="paper-count">Loading papers…</span>
+          </div>
+          <div class="table-toolbar-tools">
+            <div class="search-control">
+              <span class="search-icon" aria-hidden="true"></span>
+              <label class="sr-only" for="paper-search">Search paper names</label>
+              <input id="paper-search" class="search-input" type="search" placeholder="Search paper names…" autocomplete="off" />
+            </div>
+          </div>
         </div>
+        <p id="filter-status" class="sr-only" aria-live="polite"></p>
 
         <div class="table-scroll">
           <table>
@@ -48,7 +59,7 @@
         </div>
       </section>
 
-      <footer class="page-footer">Paper index · click a title for notes &amp; pointers · links open the original paper</footer>
+      <footer class="page-footer">Paper index · links open the original paper</footer>
     </main>
 
     <dialog class="paper-dialog" id="paper-dialog" aria-labelledby="dialog-title">
@@ -69,6 +80,6 @@
       </div>
     </dialog>
 
-    <script src="app.js?v=7"></script>
+    <script src="app.js?v=8"></script>
   </body>
 </html>
