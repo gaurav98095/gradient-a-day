@@ -1,5 +1,6 @@
 ---
 index: 02
+date: 2026-11-14
 category: Dataset
 title: Shopping Queries Dataset: A Large-Scale ESCI Benchmark for Improving Product Search
 authors: Chandan K. Reddy et al.
@@ -13,6 +14,7 @@ takeaways:
 - Product relevance is more nuanced than relevant or irrelevant.
 - ESCI is the main idea I want to remember.
 notes:
-- The dataset is most useful when evaluating whether search systems understand the relationship between a query and a product, not just whether the product contains matching words.
-- Its relevance scheme makes ranking errors more diagnosable: a substitute and a complementary product can both be useful, but they should not be treated as exact matches.
+- ESCI contains human-labeled Amazon query–product pairs in English, Japanese, and Spanish.
+- Its four labels—Exact, Substitute, Complement, and Irrelevant—capture shopping intent beyond binary relevance.
+- Finding: the labels make ranking errors easier to diagnose because useful substitutes and complements are separated from exact matches.
 ---

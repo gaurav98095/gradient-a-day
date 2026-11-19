@@ -1,5 +1,6 @@
 ---
 index: 03
+date: 2026-11-15
 category: Data synthesis
 title: MegaPairs: Massive Data Synthesis for Universal Multimodal Retrieval
 authors: Junjie Zhou et al.
@@ -13,8 +14,8 @@ ideas:
 takeaways:
 - Clean synthetic data can outperform much larger existing datasets.
 notes:
-- Each training example asks a model to move from a query image and natural-language instruction to a target image, with hard negatives included to sharpen the retrieval decision.
-- The source pool is a 20-million-image subset of Recap-DataComp-1B; the pipeline turns broad open-domain imagery into targeted retrieval supervision.
-- MMRet is evaluated across composed-retrieval benchmarks including CIRCO, CIRR, FashionIQ, and GeneCIS, then checked against the broader 36-task MMEB suite.
-- The comparison with MagicLens suggests that careful example construction can matter more than simply adding more training images.
+- MegaPairs builds more than 26 million retrieval triplets from a 20-million-image subset of Recap-DataComp-1B.
+- It mines semantically related but visually distinct pairs, then uses InternVL2-26B and LLaMA 3 8B to generate descriptions and retrieval instructions.
+- Each example combines a query image, an instruction, a target image, and hard negatives to sharpen the retrieval decision.
+- Finding: carefully constructed synthetic data can outperform much larger datasets across composed-retrieval benchmarks and the broader MMEB suite.
 ---

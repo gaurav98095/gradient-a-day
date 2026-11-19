@@ -1,5 +1,6 @@
 ---
 index: 01
+date: 2026-11-14
 category: Dataset
 title: MIEB: Massive Image Embedding Benchmark
 authors: Xiao et al.
@@ -10,9 +11,11 @@ ideas:
 - The benchmark is embedding-first rather than generation-first, covering image-only, text-image, and interleaved inputs.
 - MIEB-lite removes redundant tasks using model-performance correlations while preserving category coverage.
 takeaways:
-- Extendability: you can add a new dataset of your choice through the benchmark’s dataset interface.
-- MLLM-based models win overall, but CLIP-style models outperform them on linear probing and zero-shot classification.
+- MIEB is easy to extend with new datasets.
+- MLLMs win overall; CLIP models lead on probing and classification.
 notes:
-- The benchmark is organized around eight evaluation groups, moving from retrieval and document understanding to probing, clustering, compositionality, visual question answering, and visual semantic similarity.
-- Retrieval is deliberately multi-directional: it tests image→image, image→text, text→image, and interleaved image-text search rather than a single matching direction.
+- MIEB evaluates image and image-text embeddings across 130 tasks; MIEB-lite provides a representative 51-task version.
+- It covers multi-directional retrieval, probing, clustering, compositionality, visual question answering, and semantic similarity.
+- Finding: MLLMs perform best overall, while CLIP-style models remain stronger on linear probing and zero-shot classification.
+- Its dataset interface makes the benchmark easy to extend with new evaluation sets.
 ---
